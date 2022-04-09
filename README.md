@@ -25,15 +25,15 @@ curl http://localhost:8080/hello
 # Development
 ExampleMain.scala contains an example of a main entry point.
 ```scala
-    val webModule = new WebModule {
-      override implicit val webBootstrapper: WebBootstrap = new WebBootstrap{
-        override def httpRoute: Route = concat(
-          path("hello"){
-            get(complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, messageProvider.message("hello",Map("name"->"foobar")))))
-          }
-        )
+val webModule = new WebModule {
+  override implicit val webBootstrapper: WebBootstrap = new WebBootstrap{
+    override def httpRoute: Route = concat(
+      path("hello"){
+        get(complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, messageProvider.message("hello",Map("name"->"foobar")))))
       }
-    }
-    webModule.lifeCycle.registerForShutdown(9999,"lastHook!!",()=>{println("bye bye")})
-    webModule.start()
+    )
+  }
+}
+webModule.lifeCycle.registerForShutdown(9999,"lastHook!!",()=>{println("bye bye")})
+webModule.start()
 ```
