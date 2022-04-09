@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<configuration scan="true" scanPeriod="10 seconds" >
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>
+                %d{mm:ss} %10.-10class{0}:%4.-4line [%7.7thread] %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <logger name="com.blyxa" level="DEBUG" />
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>

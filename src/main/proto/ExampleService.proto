@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_outer_classname = "ExampleServiceProto";
+option objc_class_prefix = "HLW";
+
+package com.blyxa.rotala.proto;
+
+service ExampleService {
+    rpc sayHello(HelloRequest) returns (HelloResponse);
+}
+
+message HelloRequest{
+    string name = 1;
+}
+message HelloResponse{
+    string response = 1;
+}

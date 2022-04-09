@@ -1,0 +1,78 @@
+
+plugins {
+    id 'scala'
+    id 'application'
+    // this plugin is used for fatjar generation specifically because
+    // the default jar plugin does not handle resources files
+    // and it breaks akka's use of reference.conf files in each jar
+    // https://github.com/akka/akka/issues/24248
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id "com.lightbend.akka.grpc.gradle" version "2.1.4"
+    id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
+group 'com.blyxa.rotala'
+version '1.0.0'
+
+def scalaTarget = '2.13'
+def scalaVersion = "2.13.8"
+def akkaVersion="2.6.18"
+def akkaHttp = "10.2.9"
+def akkaGrpcRuntime = "2.1.4"
+
+dependencies {
+    implementation "org.scala-lang:scala-library:$scalaVersion"
+
+    implementation 'ch.qos.logback:logback-classic:1.2.11'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.2'
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.13.2.2"
+    implementation "com.fasterxml.jackson.module:jackson-module-scala_$scalaTarget:2.13.2"
+
+    implementation 'com.konghq:unirest-java:3.13.7'
+    implementation 'com.konghq:unirest-objectmapper-jackson:3.13.7'
+    implementation 'org.jsoup:jsoup:1.14.3'
+    implementation 'mysql:mysql-connector-java:8.0.28'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+
+    implementation "io.pebbletemplates:pebble:3.1.5"
+    implementation "com.thesamet.scalapb:scalapb-runtime_$scalaTarget:0.10.9"
+
+    implementation "com.lightbend.akka.grpc:akka-grpc-runtime_$scalaTarget:$akkaGrpcRuntime"
+    implementation "com.typesafe.akka:akka-actor-typed_$scalaTarget:$akkaVersion"
+    implementation "com.typesafe.akka:akka-discovery_$scalaTarget:$akkaVersion"
+    implementation "com.typesafe.akka:akka-protobuf_$scalaTarget:$akkaVersion"
+    implementation "com.typesafe.akka:akka-stream_$scalaTarget:$akkaVersion"
+    implementation "com.typesafe.akka:akka-pki_$scalaTarget:$akkaVersion"
+    implementation "com.typesafe.akka:akka-http-spray-json_$scalaTarget:$akkaHttp"
+    implementation "com.typesafe.akka:akka-http_$scalaTarget:$akkaHttp"
+    implementation "com.typesafe.akka:akka-http2-support_$scalaTarget:$akkaHttp"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+}
+
+mainClassName = 'com.blyxa.rotala.ExampleMain'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+shadowJar {
+    // needed for akka
+    mergeServiceFiles('reference.conf')
+}
+akkaGrpc {
+    serverPowerApis = true
+}
+processResources{
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+test {
+    useJUnitPlatform()
+}
