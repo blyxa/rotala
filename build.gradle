@@ -1,17 +1,20 @@
 
 plugins {
     id 'scala'
-    id 'application'
-    // this plugin is used for fatjar generation specifically because
-    // the default jar plugin does not handle resources files
-    // and it breaks akka's use of reference.conf files in each jar
-    // https://github.com/akka/akka/issues/24248
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'java-library'
+//    id 'java-library'
+//    id 'application'
+//    // this plugin is used for fatjar generation specifically because
+//    // the default jar plugin does not handle resources files
+//    // and it breaks akka's use of reference.conf files in each jar
+//    // https://github.com/akka/akka/issues/24248
+//    id 'com.github.johnrengelman.shadow' version '6.1.0'
     id "com.lightbend.akka.grpc.gradle" version "2.1.4"
     id 'maven-publish'
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 group 'com.blyxa.rotala'
@@ -24,7 +27,7 @@ def akkaHttp = "10.2.9"
 def akkaGrpcRuntime = "2.1.4"
 
 dependencies {
-    implementation "org.scala-lang:scala-library:$scalaVersion"
+    api "org.scala-lang:scala-library:$scalaVersion"
 
     implementation 'ch.qos.logback:logback-classic:1.2.11'
 
@@ -55,18 +58,32 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
 }
 
-mainClassName = 'com.blyxa.rotala.ExampleMain'
+//mainClassName = 'com.blyxa.rotala.ExampleMain'
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
 publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/blyxa/rotala")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
     publications {
         maven(MavenPublication) {
             from components.java
         }
     }
 }
-shadowJar {
-    // needed for akka
-    mergeServiceFiles('reference.conf')
-}
+//shadowJar {
+//    // needed for akka
+//    mergeServiceFiles('reference.conf')
+//}
 akkaGrpc {
     serverPowerApis = true
 }
