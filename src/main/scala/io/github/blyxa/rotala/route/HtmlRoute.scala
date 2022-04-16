@@ -1,10 +1,10 @@
-package com.blyxa.rotala.route
+package io.github.blyxa.rotala.route
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import com.blyxa.rotala.util.{HtmlTemplateEngine, MainProperties, MessageProvider}
-import org.slf4j.LoggerFactory
+import io.github.blyxa.rotala.util.MessageProvider
+import io.github.blyxa.rotala.util.{HtmlTemplateEngine, MainProperties, MessageProvider}
 
 class HtmlRoute
 (implicit

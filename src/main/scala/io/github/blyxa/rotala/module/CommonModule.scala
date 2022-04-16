@@ -1,7 +1,6 @@
-package com.blyxa.rotala.module
+package io.github.blyxa.rotala.module
 
-import com.blyxa.rotala.util.LifeCycle
-import com.blyxa.rotala.util.{MainProperties, MessageProvider}
+import io.github.blyxa.rotala.util.{LifeCycle, MainProperties, MessageProvider, Version}
 import com.fasterxml.jackson.databind.{ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.zaxxer.hikari.HikariDataSource
@@ -9,8 +8,10 @@ import kong.unirest.jackson.JacksonObjectMapper
 import kong.unirest.{Unirest, UnirestInstance}
 import org.slf4j.LoggerFactory
 
+import java.time.Instant
 import java.util.concurrent.{Executors, TimeUnit}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
+import scala.io.Source
 
 /**
  * This class initializes common low level components
@@ -24,7 +25,8 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
 class CommonModule{
   private val logger = LoggerFactory.getLogger(getClass)
   implicit val lifeCycle: LifeCycle = new LifeCycle
-  implicit lazy val mp: MainProperties = {
+
+  implicit val mp: MainProperties = {
     val path = Option(System.getProperty("mainProperties")).getOrElse("config/main.properties")
     val mp = new MainProperties(path,true)
     mp.offer("env","dev")
@@ -37,7 +39,6 @@ class CommonModule{
          |=   - filepath:config/main.properties
          |=   - system property: -DmainProperties=/somewhere/in/the/file/system
          |= This mainProperties was loaded with [$path]
-         |= env[${mp.getProperty("env")}] version[${mp.getProperty("version")}]
          |===============================================================================
          |""".stripMargin)
     logger.debug(
@@ -48,6 +49,11 @@ class CommonModule{
          |
          |""".stripMargin)
     mp
+  }
+  implicit val version:Version = {
+    val v = new Version()
+    logger.info(s"version[$v]")
+    v
   }
   implicit val messageProvider:MessageProvider = new MessageProvider
   implicit val om: ObjectMapper = {
@@ -80,11 +86,8 @@ class CommonModule{
     logger.info(s"created execution context[$name] with [$wc] workers")
     val ec = ExecutionContext.fromExecutorService(es)
     lifeCycle.registerForShutdown(80,name, ()=>{
-      logger.info(s"shutting down $name")
-      val start = System.currentTimeMillis()
       ec.shutdown()
       ec.awaitTermination(10,TimeUnit.SECONDS)
-      logger.info(s"shutting down $name took [${System.currentTimeMillis()-start}]ms")
     })
     ec
   }

@@ -1,4 +1,4 @@
-package com.blyxa.rotala.util
+package io.github.blyxa.rotala.util
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import com.mitchellbosecke.pebble.PebbleEngine

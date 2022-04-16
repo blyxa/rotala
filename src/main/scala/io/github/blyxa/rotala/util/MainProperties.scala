@@ -1,4 +1,4 @@
-package com.blyxa.rotala.util
+package io.github.blyxa.rotala.util
 
 import java.io.FileInputStream
 import java.util.Properties

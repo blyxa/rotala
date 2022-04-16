@@ -1,4 +1,4 @@
-package com.blyxa.rotala.util
+package io.github.blyxa.rotala.util
 
 import akka.actor.ClassicActorSystemProvider
 import akka.actor.typed.ActorSystem
@@ -11,8 +11,9 @@ import akka.http.scaladsl.server.{ExceptionHandler, MethodRejection, RejectionHa
 import com.typesafe.config.ConfigFactory
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import java.util.concurrent.TimeUnit
+import scala.concurrent.{Await, duration}
+import scala.concurrent.duration.{TimeUnit, _}
 
 /**
  * This is where the akka http web server is configured
@@ -59,23 +60,21 @@ class WebBootstrap
 
   def grpcRoute:Option[Route] = None
 
-  implicit val akkaActorSystem:ClassicActorSystemProvider = {
-    val conf = ConfigFactory
-      .parseString(
-        s"""akka.http.server.preview.enable-http2 = on
-           |# turn this off so we can use LifeCycle to shutdown in desired order
-           |akka.jvm-shutdown-hooks = off
-           |# for security reasons, do not expose server/version
-           |akka.http.server.server-header = http/private
-           |""".stripMargin)
-      .withFallback(ConfigFactory.defaultApplication())
-    ActorSystem[Nothing](Behaviors.empty, "web-server", conf)
+  implicit val akkaActorSystem: ActorSystem[Nothing] = {
+
+    logger.info(s"akkaActorSystem:init")
+    ActorSystem[Nothing](
+      Behaviors.empty,
+      "web-server",
+      ConfigFactory.load("rotala-akka.conf")
+    )
   }
 
+  lifeCycle.registerForShutdown(8998, "akkaActorSystem",()=>{
+    akkaActorSystem.classicSystem.terminate()
+  })
+
   def start(): (ServerBinding,Option[ServerBinding]) ={
-    lifeCycle.registerForShutdown(999, "akkaActorSystem",()=>{
-      akkaActorSystem.classicSystem.terminate()
-    })
     val httpPort =  mp.getRequiredProperty("http.port").toInt
     val bindAddress = if(mp.getRequiredProperty("env").contentEquals("prd"))
       "0.0.0.0" else "localhost"

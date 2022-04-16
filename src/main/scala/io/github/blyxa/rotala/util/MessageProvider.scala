@@ -1,6 +1,7 @@
-package com.blyxa.rotala.util
+package io.github.blyxa.rotala.util
 
-import com.blyxa.rotala.exception.{MessageException, ValidationError}
+import io.github.blyxa.rotala.exception.MessageException
+import io.github.blyxa.rotala.exception.{MessageException, ValidationError}
 import org.slf4j.LoggerFactory
 
 class MessageProvider

@@ -1,15 +1,14 @@
+import java.text.SimpleDateFormat
 
 plugins {
     id 'scala'
     id 'java-library'
-//    id 'java-library'
-//    id 'application'
-//    // this plugin is used for fatjar generation specifically because
-//    // the default jar plugin does not handle resources files
-//    // and it breaks akka's use of reference.conf files in each jar
-//    // https://github.com/akka/akka/issues/24248
-//    id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id "com.lightbend.akka.grpc.gradle" version "2.1.4"
+    id 'signing'
+    id 'application'
+    // needed for akka
+    // https://github.com/akka/akka/issues/24248
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id "com.lightbend.akka.grpc.gradle" version "2.1.4-6-42a72603"
     id 'maven-publish'
 }
 
@@ -17,8 +16,9 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
-group 'com.blyxa.rotala'
-version '1.0.0'
+
+group 'io.github.blyxa'
+version '0.0.0-SNAPSHOT'
 
 def scalaTarget = '2.13'
 def scalaVersion = "2.13.8"
@@ -28,6 +28,8 @@ def akkaGrpcRuntime = "2.1.4"
 
 dependencies {
     api "org.scala-lang:scala-library:$scalaVersion"
+
+    compileOnly "com.softwaremill.macwire:macros_$scalaTarget:2.5.7"
 
     implementation 'ch.qos.logback:logback-classic:1.2.11'
 
@@ -58,38 +60,93 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
 }
 
-//mainClassName = 'com.blyxa.rotala.ExampleMain'
+mainClassName = 'io.github.blyxa.rotala.ExampleMain'
 java {
     withSourcesJar()
     withJavadocJar()
 }
+
 publishing {
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/blyxa/rotala")
+            name = "Maven"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+        maven {
+            name = "MavenSnapshot"
+            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
             }
         }
     }
+
     publications {
         maven(MavenPublication) {
             from components.java
+            pom {
+                name = 'Rotala'
+                description = 'Web server boilerplate for Scala'
+                url = 'https://blyxa.github.io/rotala'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'blyxa'
+                        name = 'blyxa'
+                        email = 'blyxaa@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:blyxa/rotala.git'
+                    developerConnection = 'scm:git:git@github.com:blyxa/rotala.git'
+                    url = 'https://github.com/blyxa/rotala'
+                }
+            }
         }
     }
 }
-//shadowJar {
-//    // needed for akka
-//    mergeServiceFiles('reference.conf')
-//}
-akkaGrpc {
-    serverPowerApis = true
+shadowJar {
+    // needed for akka
+    // https://github.com/akka/akka/issues/24248
+    mergeServiceFiles('reference.conf')
 }
 processResources{
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
+
+// Config akka grpc plugin to generate classes with access to metadata
+// https://doc.akka.io/docs/akka-grpc/current/server/details.html#accessing-request-metadata
+akkaGrpc {
+    serverPowerApis = true
+}
 test {
     useJUnitPlatform()
 }
+signing {
+    sign publishing.publications.maven
+}
+
+/**
+ * Create a version file in resources
+ */
+task versionTxt()  {
+    doLast {
+        var d = new Date()
+        new File("${buildDir}/resources/main/version-rotala.txt").text =
+          "number=$version\n" +
+          "build-time-epoch=${d.getTime()}\n"
+          "build-time=${new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").format(d)}\n"
+    }
+}
+versionTxt.dependsOn classes
+jar.dependsOn versionTxt

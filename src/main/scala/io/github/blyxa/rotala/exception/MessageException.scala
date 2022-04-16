@@ -1,4 +1,4 @@
-package com.blyxa.rotala.exception
+package io.github.blyxa.rotala.exception
 
 /**
   * Represents a Throwable who's message can be displayed to

@@ -1,4 +1,4 @@
-package com.blyxa.rotala.util
+package io.github.blyxa.rotala.util
 
 import org.slf4j.LoggerFactory
 
@@ -19,13 +19,15 @@ class LifeCycle{
   }
 
   def shutdown(): Unit ={
-    val start = System.currentTimeMillis()
+    val startTotal = System.currentTimeMillis()
     logger.info(s"shutting down [${shutdownFuncs.size}] items")
     shutdownFuncs.sortBy(_._1).foreach{case (order, name,func)=>
-      logger.info(s"shutting down order[$order] name[$name] [$func]")
+      val start = System.currentTimeMillis()
+      logger.info(s"shutting down order[$order] name[$name]")
       func()
+      logger.info(s"shutting down order[$order] name[$name] done in [${System.currentTimeMillis()-start}]ms")
     }
-    logger.info(s"shutdown took [${System.currentTimeMillis()-start}]ms. Good bye!")
+    logger.info(s"Total shutdown time [${System.currentTimeMillis()-startTotal}]ms. Good bye!")
   }
 
   def start(init:()=>Unit): Unit ={

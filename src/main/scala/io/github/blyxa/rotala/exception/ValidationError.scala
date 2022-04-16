@@ -1,4 +1,4 @@
-package com.blyxa.rotala.exception
+package io.github.blyxa.rotala.exception
 
 import scala.collection.mutable.ListBuffer
 

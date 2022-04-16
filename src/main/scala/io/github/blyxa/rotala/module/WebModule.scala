@@ -1,7 +1,8 @@
-package com.blyxa.rotala.module
+package io.github.blyxa.rotala.module
 
 import akka.http.scaladsl.server.Route
-import com.blyxa.rotala.util.{HtmlTemplateEngine, WebBootstrap}
+import io.github.blyxa.rotala.util.WebBootstrap
+import io.github.blyxa.rotala.util.{HtmlTemplateEngine, WebBootstrap}
 
 /**
  * This class extends the CommonModule and provides additional
@@ -17,11 +18,7 @@ abstract class WebModule extends CommonModule {
   /**
    * Initialize the akka http server
    */
-  implicit val webBootstrapper: WebBootstrap = new WebBootstrap
-
-  def start(): Unit ={
-    lifeCycle.start(()=>webBootstrapper.start())
-  }
+  lazy val webBootstrapper: WebBootstrap = new WebBootstrap
 
   /**
    * Declare all akka routes
