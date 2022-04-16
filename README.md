@@ -35,5 +35,5 @@ val webModule = new WebModule {
   }
 }
 webModule.lifeCycle.registerForShutdown(9999,"lastHook!!",()=>{println("bye bye")})
-webModule.start()
+webModule.lifeCycle.start(()=>webModule.webBootstrapper.start())
 ```
