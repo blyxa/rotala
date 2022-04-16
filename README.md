@@ -13,8 +13,8 @@ It is preconfigured with
 ```bash
 git clone git@github.com:blyxa/rotala.git
 cd rotala
-./gradlew shadowJar
-java -jar build/libs/rotala-1.0.0-all.jar
+./gradlew build
+java -jar build/libs/rotala-<version>-all.jar
 ```
 
 In another window
