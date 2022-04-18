@@ -1,17 +1,15 @@
 package io.github.blyxa.rotala.module
 
-import io.github.blyxa.rotala.util.{LifeCycle, MainProperties, MessageProvider, Version}
 import com.fasterxml.jackson.databind.{ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.zaxxer.hikari.HikariDataSource
+import io.github.blyxa.rotala.util.{LifeCycle, MainProperties, MessageProvider, Version}
 import kong.unirest.jackson.JacksonObjectMapper
 import kong.unirest.{Unirest, UnirestInstance}
 import org.slf4j.LoggerFactory
 
-import java.time.Instant
 import java.util.concurrent.{Executors, TimeUnit}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
-import scala.io.Source
 
 /**
  * This class initializes common low level components
@@ -51,7 +49,7 @@ class CommonModule{
     mp
   }
   implicit val version:Version = {
-    val v = new Version()
+    val v = Version.fetch()
     logger.info(s"version[$v]")
     v
   }

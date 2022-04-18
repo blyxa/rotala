@@ -50,7 +50,7 @@ object ExampleMain {
               get(
                 complete{
                   htmlTemplateEngine.render("index.peb",Map(
-                    "version"->mp.getProperty("version","none"),
+                    "version"->version,
                     "env"->mp.getProperty("env","none")
                   ))
                 }

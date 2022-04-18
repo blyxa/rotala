@@ -70,8 +70,8 @@ class WebBootstrap
     )
   }
 
-  lifeCycle.registerForShutdown(8998, "akkaActorSystem",()=>{
-    akkaActorSystem.classicSystem.terminate()
+  lifeCycle.registerForShutdown(9999, "akkaActorSystem",()=>{
+    akkaActorSystem.terminate()
   })
 
   def start(): (ServerBinding,Option[ServerBinding]) ={

@@ -27,7 +27,7 @@ class LifeCycle{
       func()
       logger.info(s"shutting down order[$order] name[$name] done in [${System.currentTimeMillis()-start}]ms")
     }
-    logger.info(s"Total shutdown time [${System.currentTimeMillis()-startTotal}]ms. Good bye!")
+    logger.info(s"Total shutdown time[${System.currentTimeMillis()-startTotal}]ms. Good bye!")
   }
 
   def start(init:()=>Unit): Unit ={
